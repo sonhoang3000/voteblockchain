@@ -94,8 +94,8 @@
   color: #b3b8cd;
   padding: 2rem;
 }
-/*  */
 
+/*  */
 .voter {
   background-color: #231e39;
   border-radius: 25px;
@@ -104,13 +104,13 @@
   padding: 2rem;
 }
 
-.voter__candidate__box {
+.voter__container__box {
   text-align: center;
   border: 1px dotted #9a02ac;
   border-radius: 5px;
 }
 
-.voter__candidate__box p {
+.voter__container__box p {
   line-height: 0.5s;
 }
 
@@ -128,7 +128,7 @@
 /*  */
 /*  */
 /*  MEDIA QUERY */
-@media screen and (max-width: 45rem) {
+@media screen and (max-width: 45em) {
   .createVoter {
     width: 90%;
     grid-template-columns: 1fr;

@@ -5,6 +5,13 @@ body {
   height: 100vh;
   width: 100vw;
   overflow-x: hidden;
+  background-image: linear-gradient(
+    to right top,
+    #2d0036,
+    #4f015b,
+    #730283,
+    #c400d7
+  );
 }
 
 * {

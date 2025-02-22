@@ -5,8 +5,8 @@ import Image from 'next/image'
 
 // INTERNAL IMPORT
 import { VotingContext } from '@/context/Voter'
-// import Style from '../styles/allowedVoter.css'
-// import images from '../assets'
+import Style from '../styles/allowedVoter.module.css'
+import images from '../assets'
 import Button from '@/components/Button/Button'
 import Input from '@/components/Input/Input'
 
@@ -35,12 +35,12 @@ const allowedVoters = () => {
 
 	// JSX PART
 	return (
-		<div className=''>
+		<div className={Style.createVoter}>
 			<div>
 				{fileUrl && (
-					<div className=''>
+					<div className={Style.voterInfo}>
 						<img src={fileUrl} alt="Voter Image" />
-						<div className=''>
+						<div className={Style.voterInfo_paragraph}>
 							<p>
 								Name: <span>&nbps; {formInput.name} </span>
 							</p>
@@ -55,24 +55,24 @@ const allowedVoters = () => {
 				)}
 				{
 					!fileUrl && (
-						<div className=''>
-							<div className=''>
+						<div className={Style.sideInfo}>
+							<div className={Style.sideInfo_box}>
 								<h4>Create candidate For Voting</h4>
 								<p>
 									Blockchain voting organization, provide ethereum blockchain
 									eco system
 								</p>
-								<p>Contract Candidate List</p>
+								<p className={Style.sideInfo_para}>Contract Candidate List</p>
 							</div>
 
-							<div>
+							<div className={Style.card}>
 								{/* {voterArray.map((el, i) => (
-									<div key={i + 1} className=''>
-										<div className=''>
-											<img src='' alt='Profile photo' />
+									<div key={i + 1} className={Style.card_box}>
+										<div className={Style.image}>
+											<img src="" alt='Profile photo' />
 										</div>
-
-										<div className=''>
+ 
+										<div className={Style.card_info}>
 											<p>Name</p>
 											<p>Address</p>
 											<p>Details</p>
@@ -84,20 +84,20 @@ const allowedVoters = () => {
 					)}
 			</div>
 
-			<div className=''>
-				<div className=''>
+			<div className={Style.voter}>
+				<div className={Style.voter__container}>
 					<h1>Create New Voter</h1>
-					<div className=''>
-						<div className=''>
+					<div className={Style.voter__container__box}>
+						<div className={Style.voter__container__box__div}>
 							<div {...getRootProps()}>
 								<input {...getInputProps()} />
 
-								<div className=''>
+								<div className={Style.voter__container__box__div__info}>
 									<p>Upload File: JPG,PNG,GIF,WEBM Max 10MB</p>
 
-									<div className='Style'>
+									<div className={Style.voter__container__box__div__image}>
 										<Image
-											src={''}
+											src={images.creator}
 											width={150}
 											height={150}
 											objectFit='contain'
@@ -112,7 +112,7 @@ const allowedVoters = () => {
 					</div>
 				</div>
 
-				<div className=''>
+				<div className={Style.input__container}>
 					<Input
 						inputType="text"
 						title="Name"
@@ -138,16 +138,16 @@ const allowedVoters = () => {
 						}
 					/>
 
-					<div className=''>
+					<div className={Style.Button}>
 						<Button btnName="Authorized Voter" handleClick={() => { }} />
 					</div>
 				</div>
 			</div>
 
 			{/* ////////////// */}
-			<div className=''>
-				<div className=''>
-					<Image alt="user Profile" />
+			<div className={Style.createdVoter}>
+				<div className={Style.createdVoter__info}>
+					<Image src={images.creator} width={200} height={200} alt="user Profile" />
 					<p>Notice For User</p>
 					<p>
 						Organizer <span>0x3939393939...</span>
@@ -158,8 +158,6 @@ const allowedVoters = () => {
 					</p>
 				</div>
 			</div>
-
-
 		</div>
 	)
 }
