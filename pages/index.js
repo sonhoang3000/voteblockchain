@@ -1,13 +1,20 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import Image from 'next/image'
+import Countdown from 'react-countdown'
 
+// INTERNAL IMPORT
+import { VotingContext } from '../context/Voter'
+import Card from '../components/Card/Card'
+// import Style 
+// import image from "../ass"
 
-const Home = () => {
+const index = () => {
+  const { votingTitle } = useContext(VotingContext)
   return (
     <div>
-      Home
+      {votingTitle}
     </div>
   )
 }
 
-export default Home
+export default index
