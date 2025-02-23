@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react' //143 DOWN OK
 import Web3Modal from 'web3modal'
 import { ethers } from 'ethers'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
@@ -37,7 +37,7 @@ export const VotingProvider = ({ children }) => {
 
 	// CONNECTING WALLET-METAMASK
 
-	const checkIfWalletIsConntected = async () => {
+	const checkIfWalletIsConnected = async () => {
 		if (!window.ethereum) return setError("Please Install Metamask")
 
 		const account = await window.ethereum.request({ method: "eth_account" })
@@ -119,7 +119,7 @@ export const VotingProvider = ({ children }) => {
 		try {
 			const web3Modal = new Web3Modal();
 			const connection = await web3Modal.connect();
-			const provider = new ethers.provider.Web3Provider(connection);
+			const provider = new ethers.providers.Web3Provider(connection);
 			const signer = provider.getSigner();
 			const contract = fetchContract(signer);
 
@@ -128,7 +128,7 @@ export const VotingProvider = ({ children }) => {
 			setVoterAddress(voterListData);
 
 			voterListData.map(async (eL) => {
-				const singleVoterData = await contract.getVoterData(eL);
+				const singleVoterData = await contract.getVoterdata(eL);
 				pushVoter.push(singleVoterData)
 			});
 
@@ -140,13 +140,23 @@ export const VotingProvider = ({ children }) => {
 		}
 	}
 
-	// useEffect(() => {
+	// useEffect(() => { // 143 DOWN OK
 	// 	getAllVoterData();
 	// }, []);
 
 	// GIVE VOTE
 	const giveVote = async (id) => {
 		try {
+			const voterAddress = id.address;
+			const voterId = id.id;
+			const web3Modal = new Web3Modal();
+			const connection = await web3Modal.connect();
+			const provider = new ethers.providers.Web3Provider(connection);
+			const signer = provider.getSigner();
+			const contract = fetchContract(signer);
+
+			const voteredList = await contract.vote(voterAddress, voterId)
+			console.log(voteredList)
 		} catch (error) {
 			console.log(error)
 		}
@@ -220,13 +230,14 @@ export const VotingProvider = ({ children }) => {
 
 	useEffect(() => {
 		getNewCandidate()
+		// 
 	}, [])
 
 	return (
 		<VotingContext.Provider
 			value={{
 				votingTitle,
-				checkIfWalletIsConntected,
+				checkIfWalletIsConnected,
 				connectWallet,
 				uploadToIPFS,
 				createVoter,
