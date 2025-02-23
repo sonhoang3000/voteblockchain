@@ -6,7 +6,7 @@ import { AiFillLock, AiFillUnlock } from 'react-icons/ai'
 // INTERNAL IMPORT
 import { VotingContext } from '@/context/Voter'
 import Style from "./Navbar.module.css"
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { FaHome } from "react-icons/fa";
 
 const Navbar = () => {
 	const { connectWallet, error, currentAccount } = useContext(VotingContext)
@@ -35,7 +35,8 @@ const Navbar = () => {
 			<div className={Style.navbar_box}>
 				<div className={Style.title}>
 					<Link href={{ pathname: "/" }} >
-						<Image src={AiOutlineLoading3Quarters} alt="logo" width={80} height={80} />
+						{/* <Image src={AiOutlineLoading3Quarters} alt="logo" width={80} height={80} /> */}
+						<FaHome size={80} />
 					</Link>
 				</div>
 

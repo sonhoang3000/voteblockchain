@@ -6,7 +6,7 @@ async function main() {
 
       await create.deployed();
 
-      console.log("Create contract deployed to:", create.address);
+      console.log("Voting:", create.address);
 }
 
 main().catch((error) => {

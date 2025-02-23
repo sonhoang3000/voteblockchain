@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react' //143 DOWN OK
 import Web3Modal from 'web3modal'
 import { ethers } from 'ethers'
-import { create as ipfsHttpClient } from 'ipfs-http-client'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 
 // INTERNAL IMPORT
 import { VotingAddress, VotingAddressABI } from './contanst'
-
-const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
 
 const fetchContract = (signerOrProvider) =>
 	new ethers.Contract(VotingAddress, VotingAddressABI, signerOrProvider)
@@ -25,18 +22,14 @@ export const VotingProvider = ({ children }) => {
 	const [candidateArray, setCandidateArray] = useState(pushCandidate)
 
 	// END OF CANDIDATE DATA
-
 	const [error, setError] = useState("")
 	const highestVote = []
 
-	// VOTER SECTION
 	const pushVoter = []
 	const [voterArray, setVoterArray] = useState(pushVoter)
 	const [voterLength, setVoterLength] = useState('')
 	const [voterAddress, setVoterAddress] = useState([])
-
 	// CONNECTING WALLET-METAMASK
-
 	const checkIfWalletIsConnected = async () => {
 		if (!window.ethereum) return setError("Please Install Metamask")
 
@@ -44,11 +37,14 @@ export const VotingProvider = ({ children }) => {
 
 		if (account.length) {
 			setCurrentAccount(account[0])
+			// getAllVoterData()
+			// getNewCandidate()
 		} else {
 			setError("Please Install METAMASK & Connect, Reload")
 		}
 	}
 
+	// ==================================
 	// CONNECT WALLET
 	const connectWallet = async () => {
 		if (!window.ethereum) return setError("Please Install Metamask")
@@ -58,42 +54,72 @@ export const VotingProvider = ({ children }) => {
 		})
 
 		setCurrentAccount(account[0])
+		// getAllVoterData()
+		// getNewCandidate()
 	}
 
 	// UPLOAD TO IPFS VOTER IMAGE
 	const uploadToIPFS = async (file) => {
-		try {
-			const added = await client.add({ content: file })
+		if (file) {
+			try {
+				const formData = new FormData()
+				formData.append("file", file)
 
-			const url = `https://ipfs.infura.io/ipfs/${added.path}`
-			return url
-		} catch (error) {
-			setError("Error Uploading file to IPFS")
+				const response = await axios({
+					method: "POST",
+					url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
+					data: formData,
+					headers: {
+						pinata_api_key: '1e93568a0337d3207434',
+						pinata_secret_api_key:
+							`8f6cc592b2acffdd2c0febe5497fab8ac0b5f64050847f85a867e37062ff62bf`,
+						"Content-Type": "multipart/form-data"
+					}
+				})
+				const ImgHash = `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`
+
+				return ImgHash
+			} catch (error) {
+				setError("Error Uploading file to uploadToIPFS")
+			}
 		}
 	}
 
-	// UPLOAD IPFS THIS IMAGE CANDIDATE
 	const uploadToIPFSCandidate = async (file) => {
-		try {
-			const added = await client.add({ content: file })
+		if (file) {
+			try {
+				const formData = new FormData()
+				formData.append("file", file)
 
-			const url = `https://ipfs.infura.io/ipfs/${added.path}`
-			return url
-		} catch (error) {
-			setError("Error Uploading file to IPFS")
+				const response = await axios({
+					method: "post",
+					url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
+					data: formData,
+					headers: {
+						pinata_api_key: '1e93568a0337d3207434',
+						pinata_secret_api_key: `8f6cc592b2acffdd2c0febe5497fab8ac0b5f64050847f85a867e37062ff62bf`,
+						"Content-Type": "multipart/form-data"
+					}
+
+				})
+				const ImgHash = `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`
+
+				return ImgHash
+			} catch (error) {
+				setError("Error Uploading file to  uploadToIPFSCandidate")
+			}
 		}
+
 	}
 
 	// CREATE Voter
-
-	const createVoter = async (formInput, fileUrl, router) => {
+	const createVoter = async (formInput, fileUrl) => {
 		try {
 			const { name, address, position } = formInput;
 
 			if (!name || !address || !position)
 				return console.log("Input data is missing");
 
-			//Connecting smart contract
 			const web3Modal = new Web3Modal();
 			const connection = await web3Modal.connect();
 			const provider = new ethers.providers.Web3Provider(connection);
@@ -101,9 +127,20 @@ export const VotingProvider = ({ children }) => {
 			const contract = fetchContract(signer);
 
 			const data = JSON.stringify({ name, address, position, image: fileUrl });
-			const added = await client.add(data);
 
-			const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+			const response = await axios({
+				method: "POST",
+				url: "https://api.pinata.cloud/pinning/pinJSONToIPFS",
+				data: data,
+				headers: {
+					pinata_api_key: '1e93568a0337d3207434',
+					pinata_secret_api_key:
+						`8f6cc592b2acffdd2c0febe5497fab8ac0b5f64050847f85a867e37062ff62bf`,
+					"Content-Type": "application/json"
+				}
+			})
+
+			const url = `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`
 
 			const voter = await contract.voterRight(address, name, url, fileUrl);
 			voter.wait();
@@ -122,7 +159,6 @@ export const VotingProvider = ({ children }) => {
 			const provider = new ethers.providers.Web3Provider(connection);
 			const signer = provider.getSigner();
 			const contract = fetchContract(signer);
-
 			//VOTE LSIT
 			const voterListData = await contract.getVoterList();
 			setVoterAddress(voterListData);
@@ -136,7 +172,7 @@ export const VotingProvider = ({ children }) => {
 			const voterList = await contract.getVoterLength();
 			setVoterLength(voterList.toNumber());
 		} catch (error) {
-			setError("Something went wrong fetching data");
+			setError("Something went wrong fetching data getAllVoterData");
 		}
 	}
 
@@ -158,80 +194,77 @@ export const VotingProvider = ({ children }) => {
 			const voteredList = await contract.vote(voterAddress, voterId)
 			console.log(voteredList)
 		} catch (error) {
-			console.log(error)
+			console.log("Sorry, You have already voted, Reload Browser")
 		}
 	}
+	// 
 
-	// CANDIDATE SECTION
 	const setCandidate = async (candidateForm, fileUrl, router) => {
-		try {
-			const { name, address, age } = candidateForm;
+		const { name, address, age } = candidateForm;
 
-			if (!name || !address || !age) return setError("Input data is missing");
+		if (!name || !address || !age) return setError("Input data is missing");
 
-			console.log('')
+		const web3Modal = new Web3Modal();
+		const connection = await web3Modal.connect();
+		const provider = new ethers.providers.Web3Provider(connection);
+		const signer = provider.getSigner();
+		const contract = fetchContract(signer);
 
-			//Connecting smart contract
-			const web3Modal = new Web3Modal();
-			const connection = await web3Modal.connect();
-			const provider = new ethers.provider.Web3Provider(connection);
-			const signer = provider.getSigner();
-			const contract = fetchContract(signer);
+		const data = JSON.stringify({
+			name,
+			address,
+			image: fileUrl,
+			age
+		});
 
-			const data = JSON.stringify({ name, address, image: fileUrl, age });
-			const added = await client.add(data);
+		const response = await axios({
+			method: "POST",
+			url: "https://api.pinata.cloud/pinning/pinJSONToIPFS",
+			data: data,
+			headers: {
+				pinata_api_key: '1e93568a0337d3207434',
+				pinata_secret_api_key:
+					`8f6cc592b2acffdd2c0febe5497fab8ac0b5f64050847f85a867e37062ff62bf`,
+				"Content-Type": "application/json"
+			}
+		})
 
-			const ipfs = `https://ipfs.infura.io/ipfs/${added.path}`;
+		const url = `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`
 
-			const candidate = await contract.setCandidate(
-				address,
-				age,
-				name,
-				fileUrl,
-				ipfs
-			);
-			candidate.wait();
+		const candidate = await contract.setCandidate(
+			address,
+			age,
+			name,
+			fileUrl,
+			url
+		);
+		candidate.wait();
 
-			console.log("")
-
-			router.push("/");
-		} catch (error) {
-			setError("Something wrong creating voter data");
-		}
+		router.push("/");
 	};
 
-	// GET CANDIDATE DATA
 	const getNewCandidate = async () => {
-		try {
-			//Connecting smart contract
-			const web3Modal = new Web3Modal();
-			const connection = await web3Modal.connect();
-			const provider = new ethers.provider.Web3Provider(connection);
-			const signer = provider.getSigner();
-			const contract = fetchContract(signer);
+		const web3Modal = new Web3Modal();
+		const connection = await web3Modal.connect();
+		const provider = new ethers.providers.Web3Provider(connection);
+		const signer = provider.getSigner();
+		const contract = fetchContract(signer);
 
-			//-----All candidate
-			const allCandidate = await contract.getCandidate();
+		//-----All candidate
+		const allCandidate = await contract.getCandidate();
 
-			allCandidate.map(async (eL) => {
-				const singleCandidateData = await contract.getCandidate(eL);
+		// CANDIDATE DATA
+		allCandidate.map(async (eL) => {
+			const singleCandidateData = await contract.getCandidate(eL);
 
-				pushCandidate.push(singleCandidateData);
-				candidateIndex.push(singleCandidateData[2].toNumber());
-			});
+			pushCandidate.push(singleCandidateData);
+			candidateIndex.push(singleCandidateData[2].toNumber());
+		});
 
-			//---------cadidate length 
-			const allCandidateLength = await contract.getCandidateLength();
-			setCandidateLength(allCandidateLength.toNumber());
-		} catch (error) {
-			console.log(error)
-		}
+		//---------cadidate length 
+		const allCandidateLength = await contract.getCandidateLength();
+		setCandidateLength(allCandidateLength.toNumber());
 	};
-
-	useEffect(() => {
-		getNewCandidate()
-		// 
-	}, [])
 
 	return (
 		<VotingContext.Provider
