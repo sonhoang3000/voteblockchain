@@ -10,21 +10,22 @@ import images from '../assets'
 import Button from '@/components/Button/Button'
 import Input from '@/components/Input/Input'
 
-const allowedVoters = () => {
+// 
+const candidateRegistration = () => {
 	const [fileUrl, setFileUrl] = useState(null)
-	const [formInput, setFormInput] = useState({
+	const [candidateForm, setCandidateForm] = useState({
 		name: "",
 		address: "",
-		position: ""
+		age: ""
 	})
 
 	const router = useRouter()
-	const { uploadToIPFS, createVoter, voterArray, getAllVoterData } =
-		useContext(VotingContext)
+	const { setCandidate, uploadToIPFSCandidate, candidateArray, getNewCandidate }
+		= useContext(VotingContext)
 
 	// VOTERS IMAGE DROP
 	const onDrop = useCallback(async (acceptedFile) => {
-		const url = await uploadToIPFS(acceptedFile[0])
+		const url = await uploadToIPFSCandidate(acceptedFile[0])
 		setFileUrl(url)
 	})
 
@@ -35,7 +36,7 @@ const allowedVoters = () => {
 	})
 
 	useEffect(() => {
-		getAllVoterData()
+		getNewCandidate()
 	}, [])
 
 	// JSX PART
@@ -47,50 +48,51 @@ const allowedVoters = () => {
 						<img src={fileUrl} alt="Voter Image" />
 						<div className={Style.voterInfo_paragraph}>
 							<p>
-								Name: <span>&nbps; {formInput.name} </span>
+								Name: <span>&nbps; {candidateForm.name} </span>
 							</p>
 							<p>
-								Add: <span>&nbps; {formInput.address.slice(0, 20)} </span>
+								Add: <span>&nbps; {candidateForm.address.slice(0, 20)} </span>
 							</p>
 							<p>
-								Pos: <span>&nbps; {formInput.position} </span>
+								Age: <span>&nbps; {candidateForm.age} </span>
 							</p>
 						</div>
 					</div>
 				)}
-				{
-					!fileUrl && (
-						<div className={Style.sideInfo}>
-							<div className={Style.sideInfo_box}>
-								<h4>Create candidate For Voting</h4>
-								<p>
-									Blockchain voting organization, provide ethereum blockchain
-									eco system
-								</p>
-								<p className={Style.sideInfo_para}>Contract Candidate List</p>
-							</div>
 
-							<div className={Style.card}>
-								{voterArray.map((el, i) => (
-									<div key={i + 1} className={Style.card_box}>
-										<div className={Style.image}>
-											<img src={el[4]} alt='Profile photo' />
-										</div>
-
-										<div className={Style.card_info}>
-											<p>{el[1]}</p>
-											<p>Address: {el[3].slice(0, 10)}...</p>
-										</div>
-									</div>
-								))}
-							</div>
+				{!fileUrl && (
+					<div className={Style.sideInfo}>
+						<div className={Style.sideInfo_box}>
+							<h4>Create candidate For Voting</h4>
+							<p>
+								Blockchain voting organization, provide ethereum blockchain
+								eco system
+							</p>
+							<p className={Style.sideInfo_para}>Contract Candidate List</p>
 						</div>
-					)}
+
+						<div className={Style.card}>
+							{candidateArray.map((el, i) => (
+								<div key={i + 1} className={Style.card_box}>
+									<div className={Style.image}>
+										<img src={el[3]} alt='Profile photo' />
+									</div>
+
+									<div className={Style.card_info}>
+										<p>{el[1]} #{el[2].toNumber()} </p>
+										<p>{el[0]}</p>
+										<p>Address: {el[6].slice(0, 10)}</p>
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
 			</div>
 
 			<div className={Style.voter}>
 				<div className={Style.voter__container}>
-					<h1>Create New Voter</h1>
+					<h1>Create New Candidate</h1>
 					<div className={Style.voter__container__box}>
 						<div className={Style.voter__container__box__div}>
 							<div {...getRootProps()}>
@@ -122,7 +124,7 @@ const allowedVoters = () => {
 						title="Name"
 						placeholder="Voter Name"
 						handleClick={(e) =>
-							setFormInput({ ...formInput, name: e.target.value })
+							setCandidateForm({ ...candidateForm, name: e.target.value })
 						}
 					/>
 					<Input
@@ -130,22 +132,22 @@ const allowedVoters = () => {
 						title="Address"
 						placeholder="Voter Address"
 						handleClick={(e) =>
-							setFormInput({ ...formInput, address: e.target.value })
+							setCandidateForm({ ...candidateForm, address: e.target.value })
 						}
 					/>
 					<Input
 						inputType="text"
-						title="Position"
-						placeholder="Voter Position"
+						title="Age"
+						placeholder="Voter Age"
 						handleClick={(e) =>
-							setFormInput({ ...formInput, position: e.target.value })
+							setCandidateForm({ ...candidateForm, age: e.target.value })
 						}
 					/>
 
 					<div className={Style.Button}>
 						<Button
-							btnName="Authorized Voter"
-							handleClick={() => createVoter(formInput, fileUrl, router)}
+							btnName="Authorized Candidate"
+							handleClick={() => setCandidate(candidateForm, fileUrl, router)}
 						/>
 					</div>
 				</div>
@@ -169,4 +171,4 @@ const allowedVoters = () => {
 	)
 }
 
-export default allowedVoters
+export default candidateRegistration

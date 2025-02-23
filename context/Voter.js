@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Web3Modal from 'web3modal'
 import { ethers } from 'ethers'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
@@ -72,13 +72,176 @@ export const VotingProvider = ({ children }) => {
 		}
 	}
 
+	// UPLOAD IPFS THIS IMAGE CANDIDATE
+	const uploadToIPFSCandidate = async (file) => {
+		try {
+			const added = await client.add({ content: file })
+
+			const url = `https://ipfs.infura.io/ipfs/${added.path}`
+			return url
+		} catch (error) {
+			setError("Error Uploading file to IPFS")
+		}
+	}
+
+	// CREATE Voter
+
+	const createVoter = async (formInput, fileUrl, router) => {
+		try {
+			const { name, address, position } = formInput;
+
+			if (!name || !address || !position)
+				return console.log("Input data is missing");
+
+			//Connecting smart contract
+			const web3Modal = new Web3Modal();
+			const connection = await web3Modal.connect();
+			const provider = new ethers.providers.Web3Provider(connection);
+			const signer = provider.getSigner();
+			const contract = fetchContract(signer);
+
+			const data = JSON.stringify({ name, address, position, image: fileUrl });
+			const added = await client.add(data);
+
+			const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+
+			const voter = await contract.voterRight(address, name, url, fileUrl);
+			voter.wait();
+
+			router.push("/voterList");
+		} catch (error) {
+			setError("Something wrong creating voter data");
+		}
+	}
+
+	// GET VOTER DATA
+	const getAllVoterData = async () => {
+		try {
+			const web3Modal = new Web3Modal();
+			const connection = await web3Modal.connect();
+			const provider = new ethers.provider.Web3Provider(connection);
+			const signer = provider.getSigner();
+			const contract = fetchContract(signer);
+
+			//VOTE LSIT
+			const voterListData = await contract.getVoterList();
+			setVoterAddress(voterListData);
+
+			voterListData.map(async (eL) => {
+				const singleVoterData = await contract.getVoterData(eL);
+				pushVoter.push(singleVoterData)
+			});
+
+			//VOTER LENGTH
+			const voterList = await contract.getVoterLength();
+			setVoterLength(voterList.toNumber());
+		} catch (error) {
+			setError("Something went wrong fetching data");
+		}
+	}
+
+	// useEffect(() => {
+	// 	getAllVoterData();
+	// }, []);
+
+	// GIVE VOTE
+	const giveVote = async (id) => {
+		try {
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	// CANDIDATE SECTION
+	const setCandidate = async (candidateForm, fileUrl, router) => {
+		try {
+			const { name, address, age } = candidateForm;
+
+			if (!name || !address || !age) return setError("Input data is missing");
+
+			console.log('')
+
+			//Connecting smart contract
+			const web3Modal = new Web3Modal();
+			const connection = await web3Modal.connect();
+			const provider = new ethers.provider.Web3Provider(connection);
+			const signer = provider.getSigner();
+			const contract = fetchContract(signer);
+
+			const data = JSON.stringify({ name, address, image: fileUrl, age });
+			const added = await client.add(data);
+
+			const ipfs = `https://ipfs.infura.io/ipfs/${added.path}`;
+
+			const candidate = await contract.setCandidate(
+				address,
+				age,
+				name,
+				fileUrl,
+				ipfs
+			);
+			candidate.wait();
+
+			console.log("")
+
+			router.push("/");
+		} catch (error) {
+			setError("Something wrong creating voter data");
+		}
+	};
+
+	// GET CANDIDATE DATA
+	const getNewCandidate = async () => {
+		try {
+			//Connecting smart contract
+			const web3Modal = new Web3Modal();
+			const connection = await web3Modal.connect();
+			const provider = new ethers.provider.Web3Provider(connection);
+			const signer = provider.getSigner();
+			const contract = fetchContract(signer);
+
+			//-----All candidate
+			const allCandidate = await contract.getCandidate();
+
+			allCandidate.map(async (eL) => {
+				const singleCandidateData = await contract.getCandidate(eL);
+
+				pushCandidate.push(singleCandidateData);
+				candidateIndex.push(singleCandidateData[2].toNumber());
+			});
+
+			//---------cadidate length 
+			const allCandidateLength = await contract.getCandidateLength();
+			setCandidateLength(allCandidateLength.toNumber());
+		} catch (error) {
+			console.log(error)
+		}
+	};
+
+	useEffect(() => {
+		getNewCandidate()
+	}, [])
+
 	return (
 		<VotingContext.Provider
 			value={{
 				votingTitle,
 				checkIfWalletIsConntected,
 				connectWallet,
-				uploadToIPFS
+				uploadToIPFS,
+				createVoter,
+				getAllVoterData,
+				giveVote,
+				setCandidate,
+				getNewCandidate,
+				error,
+				voterArray,
+				voterLength,
+				voterAddress,
+				currentAccount,
+				candidateLength,
+				candidateArray,
+				uploadToIPFSCandidate
 			}}
 		>
 			{children}
