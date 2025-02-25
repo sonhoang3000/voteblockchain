@@ -5,7 +5,7 @@ import Image from "next/image";
 import Style from "../Card/Card.module.css";
 import images from "@/assets";
 
-const card = ({ candidateArray, giveVote }) => {
+const Card = ({ candidateArray, giveVote }) => {
 	return (
 		<div className={Style.card}>
 			{candidateArray.map((el, i) => (
@@ -18,8 +18,8 @@ const card = ({ candidateArray, giveVote }) => {
 						<h2>
 							{el[1]} #{el[2].toNumber()}
 						</h2>
-						<p>{el[0]}</p>
-						<p>Address:{el[6].slice(0, 30)}...</p>
+						<p>Age: {el[0]}</p>
+						<p>Address: {el[6].slice(0, 30)}...</p>
 						<p className={Style.total}>Total Vote</p>
 					</div>
 
@@ -40,4 +40,4 @@ const card = ({ candidateArray, giveVote }) => {
 	);
 };
 
-export default card;
+export default Card;

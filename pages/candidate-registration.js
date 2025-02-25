@@ -20,7 +20,7 @@ const candidateRegistration = () => {
 	})
 
 	const router = useRouter()
-	const { setCandidate, uploadToIPFSCandidate, candidateArray, getNewCandidate }
+	const { setCandidate, uploadToIPFSCandidate, candidateArray, getNewCandidate, checkIfWalletIsConnected }
 		= useContext(VotingContext)
 
 	// VOTERS IMAGE DROP
@@ -36,7 +36,8 @@ const candidateRegistration = () => {
 	})
 
 	useEffect(() => {
-		getNewCandidate()
+		// getNewCandidate()
+		checkIfWalletIsConnected()
 	}, [])
 
 	// JSX PART
@@ -45,16 +46,16 @@ const candidateRegistration = () => {
 			<div>
 				{fileUrl && (
 					<div className={Style.voterInfo}>
-						<img src={fileUrl} alt="Voter Image" />
+						<img src={fileUrl} alt="Candidate Image" />
 						<div className={Style.voterInfo_paragraph}>
 							<p>
-								Name: <span>&nbps; {candidateForm.name} </span>
+								Name: <span>{candidateForm.name} </span>
 							</p>
 							<p>
-								Add: <span>&nbps; {candidateForm.address.slice(0, 20)} </span>
+								Add: <span> {candidateForm.address.slice(0, 20)} </span>
 							</p>
 							<p>
-								Age: <span>&nbps; {candidateForm.age} </span>
+								Age: <span> {candidateForm.age} </span>
 							</p>
 						</div>
 					</div>

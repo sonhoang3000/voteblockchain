@@ -29,23 +29,20 @@ export const VotingProvider = ({ children }) => {
 	const [voterArray, setVoterArray] = useState(pushVoter)
 	const [voterLength, setVoterLength] = useState('')
 	const [voterAddress, setVoterAddress] = useState([])
-	// CONNECTING WALLET-METAMASK
+	// CONNECTING METAMASK
 	const checkIfWalletIsConnected = async () => {
 		if (!window.ethereum) return setError("Please Install Metamask")
 
-		const account = await window.ethereum.request({ method: "eth_account" })
-
+		const account = await window.ethereum.request({ method: "eth_accounts" })
 		if (account.length) {
 			setCurrentAccount(account[0])
-			// getAllVoterData()
-			// getNewCandidate()
+			getAllVoterData()
+			getNewCandidate()
 		} else {
 			setError("Please Install METAMASK & Connect, Reload")
 		}
 	}
 
-	// ==================================
-	// CONNECT WALLET
 	const connectWallet = async () => {
 		if (!window.ethereum) return setError("Please Install Metamask")
 
@@ -54,30 +51,24 @@ export const VotingProvider = ({ children }) => {
 		})
 
 		setCurrentAccount(account[0])
-		// getAllVoterData()
-		// getNewCandidate()
 	}
 
-	// UPLOAD TO IPFS VOTER IMAGE
 	const uploadToIPFS = async (file) => {
 		if (file) {
 			try {
 				const formData = new FormData()
 				formData.append("file", file)
-
 				const response = await axios({
 					method: "POST",
 					url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
 					data: formData,
 					headers: {
 						pinata_api_key: '1e93568a0337d3207434',
-						pinata_secret_api_key:
-							`8f6cc592b2acffdd2c0febe5497fab8ac0b5f64050847f85a867e37062ff62bf`,
+						pinata_secret_api_key: `8f6cc592b2acffdd2c0febe5497fab8ac0b5f64050847f85a867e37062ff62bf`,
 						"Content-Type": "multipart/form-data"
 					}
 				})
 				const ImgHash = `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`
-
 				return ImgHash
 			} catch (error) {
 				setError("Error Uploading file to uploadToIPFS")
@@ -92,7 +83,7 @@ export const VotingProvider = ({ children }) => {
 				formData.append("file", file)
 
 				const response = await axios({
-					method: "post",
+					method: "POST",
 					url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
 					data: formData,
 					headers: {
@@ -100,20 +91,17 @@ export const VotingProvider = ({ children }) => {
 						pinata_secret_api_key: `8f6cc592b2acffdd2c0febe5497fab8ac0b5f64050847f85a867e37062ff62bf`,
 						"Content-Type": "multipart/form-data"
 					}
-
 				})
 				const ImgHash = `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`
-
 				return ImgHash
 			} catch (error) {
-				setError("Error Uploading file to  uploadToIPFSCandidate")
+				setError("Error Uploading file to uploadToIPFS")
 			}
 		}
+	} // DONE uploadToIPFSCandidate
 
-	}
 
-	// CREATE Voter
-	const createVoter = async (formInput, fileUrl) => {
+	const createVoter = async (formInput, fileUrl, router) => {
 		try {
 			const { name, address, position } = formInput;
 
@@ -163,10 +151,16 @@ export const VotingProvider = ({ children }) => {
 			const voterListData = await contract.getVoterList();
 			setVoterAddress(voterListData);
 
-			voterListData.map(async (eL) => {
-				const singleVoterData = await contract.getVoterdata(eL);
-				pushVoter.push(singleVoterData)
-			});
+			// Dùng Promise.all để đợi tất cả các lời gọi async hoàn tất
+			const allVoterData = await Promise.all(
+				voterListData.map(async (eL) => {
+					const singleVoterData = await contract.getVoterdata(eL);
+					return singleVoterData; // Trả về dữ liệu cho từng voter
+				})
+			);
+
+			// Cập nhật mảng voterArray sau khi tất cả dữ liệu đã được lấy
+			setVoterArray(allVoterData);
 
 			//VOTER LENGTH
 			const voterList = await contract.getVoterLength();
@@ -176,9 +170,9 @@ export const VotingProvider = ({ children }) => {
 		}
 	}
 
-	// useEffect(() => { // 143 DOWN OK
-	// 	getAllVoterData();
-	// }, []);
+	useEffect(() => {
+		getAllVoterData()
+	}, [])
 
 	// GIVE VOTE
 	const giveVote = async (id) => {
@@ -197,8 +191,8 @@ export const VotingProvider = ({ children }) => {
 			console.log("Sorry, You have already voted, Reload Browser")
 		}
 	}
-	// 
 
+	// CANDIDATE SECTION DONE
 	const setCandidate = async (candidateForm, fileUrl, router) => {
 		const { name, address, age } = candidateForm;
 
@@ -223,8 +217,7 @@ export const VotingProvider = ({ children }) => {
 			data: data,
 			headers: {
 				pinata_api_key: '1e93568a0337d3207434',
-				pinata_secret_api_key:
-					`8f6cc592b2acffdd2c0febe5497fab8ac0b5f64050847f85a867e37062ff62bf`,
+				pinata_secret_api_key: `8f6cc592b2acffdd2c0febe5497fab8ac0b5f64050847f85a867e37062ff62bf`,
 				"Content-Type": "application/json"
 			}
 		})
@@ -253,18 +246,24 @@ export const VotingProvider = ({ children }) => {
 		//-----All candidate
 		const allCandidate = await contract.getCandidate();
 
-		// CANDIDATE DATA
-		allCandidate.map(async (eL) => {
-			const singleCandidateData = await contract.getCandidate(eL);
+		// Dùng Promise.all để đợi tất cả các lời gọi async hoàn tất
+		const allCandidateData = await Promise.all(
+			allCandidate.map(async (eL) => {
+				const singleCandidateData = await contract.getCandidatedata(eL);
+				return singleCandidateData; // Trả về dữ liệu cho từng voter
+			})
+		);
 
-			pushCandidate.push(singleCandidateData);
-			candidateIndex.push(singleCandidateData[2].toNumber());
-		});
+		setCandidateArray(allCandidateData);
 
 		//---------cadidate length 
 		const allCandidateLength = await contract.getCandidateLength();
 		setCandidateLength(allCandidateLength.toNumber());
 	};
+
+	useEffect(() => {
+		getNewCandidate()
+	}, [])
 
 	return (
 		<VotingContext.Provider

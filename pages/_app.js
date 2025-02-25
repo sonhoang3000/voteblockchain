@@ -7,7 +7,9 @@ const MyApp = ({ Component, pageProps }) => (
   <VotingProvider>
     <div>
       <Navbar />
-      <Component {...pageProps} />
+      <div>
+        <Component {...pageProps} />
+      </div>
     </div>
   </VotingProvider>
 )

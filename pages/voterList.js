@@ -6,10 +6,19 @@ import Style from '../styles/voterList.module.css';
 import { VotingContext } from "../context/Voter";
 
 const voterList = () => {
-      const { getAllVoterData, voterArray } = useContext(VotingContext);
+      const { getAllVoterData, voterArray, checkIfWalletIsConnected } = useContext(VotingContext);
       useEffect(() => {
-            getAllVoterData()
-      }, [])
+            const fetchData = async () => {
+                  await checkIfWalletIsConnected(); // Kiểm tra ví
+                  if (voterArray.length === 0) {
+                        // Kiểm tra xem voterArray có dữ liệu chưa, nếu không gọi lại getAllVoterData
+                        await getAllVoterData();
+                  }
+            };
+            fetchData();
+      }, []);
+
+      console.log('check voterArray', voterArray)
       return (
             <div className={Style.voterList}>
                   <VoterCard voterArray={voterArray} />

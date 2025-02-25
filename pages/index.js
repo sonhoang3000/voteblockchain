@@ -22,8 +22,8 @@ const index = () => {
 
 	useEffect(() => {
 		checkIfWalletIsConnected();
-		getAllVoterData()
-	});
+		// getAllVoterData()
+	}, []);
 
 	return (
 		<div className={Style.home}>
@@ -44,7 +44,7 @@ const index = () => {
 
 					<div className={Style.winner_message}>
 						<small>
-							<Countdown date={Date.now() + 1000000} />
+							<Countdown date={Date.now() + 100000000} />
 						</small>
 					</div>
 				</div>

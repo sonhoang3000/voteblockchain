@@ -1,6 +1,8 @@
-// 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
 
 import voting from './Create.json'
+import dotenv from 'dotenv'
 
-export const VotingAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
+dotenv.config()
+
+export const VotingAddress = process.env.VOTING_ADDRESS
 export const VotingAddressABI = voting.abi

@@ -19,7 +19,7 @@ const allowedVoters = () => {
 	})
 
 	const router = useRouter()
-	const { uploadToIPFS, createVoter, voterArray, getAllVoterData } =
+	const { uploadToIPFS, createVoter, voterArray, getAllVoterData, checkIfWalletIsConnected } =
 		useContext(VotingContext)
 
 	// VOTERS IMAGE DROP
@@ -35,7 +35,8 @@ const allowedVoters = () => {
 	})
 
 	useEffect(() => {
-		getAllVoterData()
+		// getAllVoterData() 
+		checkIfWalletIsConnected()
 	}, [])
 
 	// JSX PART
@@ -47,13 +48,13 @@ const allowedVoters = () => {
 						<img src={fileUrl} alt="Voter Image" />
 						<div className={Style.voterInfo_paragraph}>
 							<p>
-								Name: <span>&nbps; {formInput.name} </span>
+								Name: <span>{formInput.name} </span>
 							</p>
 							<p>
-								Add: <span>&nbps; {formInput.address.slice(0, 20)} </span>
+								Add: <span> {formInput.address.slice(0, 20)} </span>
 							</p>
 							<p>
-								Pos: <span>&nbps; {formInput.position} </span>
+								Pos: <span> {formInput.position} </span>
 							</p>
 						</div>
 					</div>
@@ -78,7 +79,7 @@ const allowedVoters = () => {
 										</div>
 
 										<div className={Style.card_info}>
-											<p>{el[1]}</p>
+											<p>Name: {el[1]}</p>
 											<p>Address: {el[3].slice(0, 10)}...</p>
 										</div>
 									</div>
