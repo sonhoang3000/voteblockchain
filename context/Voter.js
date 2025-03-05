@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react' //143 DOWN OK
 import Web3Modal from 'web3modal'
 import { ethers } from 'ethers'
 import axios from 'axios'
-import { useRouter } from 'next/router'
 
 // INTERNAL IMPORT
 import { VotingAddress, VotingAddressABI } from './contanst'
@@ -13,17 +12,13 @@ const fetchContract = (signerOrProvider) =>
 export const VotingContext = React.createContext()
 
 export const VotingProvider = ({ children }) => {
-	const votingTitle = "my first smart contract app"
-	const router = useRouter()
 	const [currentAccount, setCurrentAccount] = useState("")
 	const [candidateLength, setCandidateLength] = useState("")
 	const pushCandidate = []
-	const candidateIndex = []
 	const [candidateArray, setCandidateArray] = useState(pushCandidate)
 
 	// END OF CANDIDATE DATA
 	const [error, setError] = useState("")
-	const highestVote = []
 
 	const pushVoter = []
 	const [voterArray, setVoterArray] = useState(pushVoter)
@@ -35,12 +30,20 @@ export const VotingProvider = ({ children }) => {
 
 		const account = await window.ethereum.request({ method: "eth_accounts" })
 		if (account.length) {
+
+			console.log('check account', account)
+
 			setCurrentAccount(account[0])
 			getAllVoterData()
 			getNewCandidate()
 		} else {
 			setError("Please Install METAMASK & Connect, Reload")
 		}
+
+		// Theo dõi sự kiện thay đổi tài khoản
+		window.ethereum.on("accountsChanged", () => {
+			window.location.reload(); // Reload trang khi tài khoản thay đổi
+		});
 	}
 
 	const connectWallet = async () => {
@@ -98,7 +101,7 @@ export const VotingProvider = ({ children }) => {
 				setError("Error Uploading file to uploadToIPFS")
 			}
 		}
-	} // DONE uploadToIPFSCandidate
+	}
 
 
 	const createVoter = async (formInput, fileUrl, router) => {
@@ -188,7 +191,7 @@ export const VotingProvider = ({ children }) => {
 			const voteredList = await contract.vote(voterAddress, voterId)
 			console.log(voteredList)
 		} catch (error) {
-			console.log("Sorry, You have already voted, Reload Browser")
+			alert(`Sorry, You have already voted`);
 		}
 	}
 
@@ -268,7 +271,6 @@ export const VotingProvider = ({ children }) => {
 	return (
 		<VotingContext.Provider
 			value={{
-				votingTitle,
 				checkIfWalletIsConnected,
 				connectWallet,
 				uploadToIPFS,

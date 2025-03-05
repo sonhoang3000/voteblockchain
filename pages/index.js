@@ -1,12 +1,10 @@
 import React, { useContext, useEffect } from 'react' // END NOT FAIL 
-import Image from 'next/image'
 import Countdown from 'react-countdown'
 
 // INTERNAL IMPORT
 import { VotingContext } from '../context/Voter'
 import Card from '../components/Card/Card'
 import Style from '../styles/index.module.css'
-import image from "../assets/candidate1.jpg"
 
 const index = () => {
 	const {

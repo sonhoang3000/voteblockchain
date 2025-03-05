@@ -160,7 +160,7 @@ const candidateRegistration = () => {
 					<Image src={images.creator} width={200} height={200} alt="user Profile" />
 					<p>Notice For User</p>
 					<p>
-						Organizer <span>0x3939393939...</span>
+						Organizer <span>0xf39Fd6e51...</span>
 					</p>
 					<p>
 						Only Organizer of the voting contract can create voter and candidate

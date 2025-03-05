@@ -9,7 +9,7 @@ const Card = ({ candidateArray, giveVote }) => {
 	return (
 		<div className={Style.card}>
 			{candidateArray.map((el, i) => (
-				<div className={Style.card_box}>
+				<div key={i} className={Style.card_box}>
 					<div className={Style.image}>
 						<img src={el[3]} alt="profile" />
 					</div>

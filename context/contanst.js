@@ -1,8 +1,5 @@
 
 import voting from './Create.json'
-import dotenv from 'dotenv'
 
-dotenv.config()
-
-export const VotingAddress = process.env.VOTING_ADDRESS
+export const VotingAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
 export const VotingAddressABI = voting.abi

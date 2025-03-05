@@ -18,7 +18,6 @@ const voterList = () => {
             fetchData();
       }, []);
 
-      console.log('check voterArray', voterArray)
       return (
             <div className={Style.voterList}>
                   <VoterCard voterArray={voterArray} />
